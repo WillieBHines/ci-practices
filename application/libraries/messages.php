@@ -23,15 +23,35 @@ $link
 Thanks!
 -Will";
 
-		$this->send_email($to, "Link for willhines.net practices", $body);
+		return $this->send_email($to, "Link for willhines.net practices", $body);
 		
 	}
+
+
+	public function send_change_email_link($new_email, $key, $temp_key) {
+		$link = base_url('/users/invoke/'.$key.'/'.$temp_key);
+		$body = "Someone (you?) has requested to change your email on Will Hines practices to {$new_email}. 
+
+Just click this link to make that your new email. 			
+$link
+
+If you want to keep your old email, just ignore this.
+
+Thanks!
+-Will";
+
+		return $this->send_email($new_email, "New email for willhines.net practices", $body);
+		
+	}
+
 
 	private function send_email($to, $subject, $body) {
 		$this->CI->email->from($this->from, $this->from_name);
 		$this->CI->email->to($to);
 		$this->CI->email->subject($subject);
 		$this->CI->email->message($body);
+		
+		//$this->CI->email->send();
 		$this->CI->email->send(FALSE);
 		echo $this->CI->email->print_debugger();
 	}

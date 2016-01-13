@@ -26,7 +26,7 @@ class Workshops extends CI_Controller {
     public function index() {
 
 		// log in box / greetings
-		if ($this->user->is_logged_in()) {
+		if ($this->user->logged_in()) {
 			$this->load->view('logged_in', $this->data);	
 		} else {
 			$this->load->view('login', $this->data);
