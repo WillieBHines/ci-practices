@@ -1,24 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class Workshops extends CI_Controller {
+class Workshops extends Public_Controller {
 
     function __construct() {
 		parent::__construct();
-
-		/* Standard Libraries */
-		$this->load->model('user');
-		$this->load->library('form_builder');
-		$this->load->helper('form');
-
-		$this->output->set_template('workshop_user');
-
-		$this->data = array();
-		if ($this->session->flashdata('message')) {
-			$this->data['message'] = $this->session->flashdata('message');
-		}
-		if ($this->session->flashdata('error')) {
-			$this->data['error'] = $this->session->flashdata('error');
-		}
+		$this->load->model('workshop');
 	}
  
  
@@ -33,7 +19,17 @@ class Workshops extends CI_Controller {
 		}
 		
 		// list of workshops / mailchimp form
-		$this->load->view('front', $this->data);
+		//$this->db->where('start > now() AND when_public < now()');
+		$this->db->join('locations', 'workshops.location_id = locations.id');
+		$query = $this->db->get('workshops');
+		$workshop_rows = array();
+		foreach ($query->result_array() as $row) {
+			$row = $this->workshop->prep_workshop_data($row);
+			$workshop_rows[] = $row;
+		}
+		$this->data['workshops'] = $workshop_rows;
+				
+		$this->load->view('workshop_list', $this->data);
 		
     }
 

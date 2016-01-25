@@ -160,6 +160,17 @@ class User extends CI_Model {
 			
 		}
 		
+		public function update_text_preferences($send_text, $carrier_id, $phone) {
+			$this->db->where('id', $this->cols['id']);
+			$this->db->update('users', array(
+				'send_text' => $send_text,
+				'carrier_id' => $carrier_id,
+				'phone' => $phone 
+			));
+			$this->set_user_with_key($this->cols['ukey']); // update the object, yes it's inefficent to hit the db again but it's easy and this is a low traffic site!
+			return true;
+			
+		}
 		
 		private function remember_key($key) {
 			$this->session->set_userdata('ukey', $key);

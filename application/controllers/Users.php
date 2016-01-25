@@ -1,25 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Users extends CI_Controller {
+class Users extends Public_Controller {
 
     function __construct() {
 		parent::__construct();
-
-		$this->load->model('user');
-		$this->load->library('form_builder');
-		$this->load->helper('form');
-
-		$this->data = array();
-		if ($this->session->flashdata('message')) {
-			$this->data['message'] = $this->session->flashdata('message');
-		}
-		if ($this->session->flashdata('error')) {
-			$this->data['error'] = $this->session->flashdata('error');
-		}
-
-		$this->output->set_template('workshop_user');
-
 	}
  	
 	public function index() {
@@ -50,6 +35,30 @@ class Users extends CI_Controller {
 	public function profile() {
 		$this->check_logged_in();
 		$this->load->view('profile');
+	}
+
+	public function text_preferences() {
+		$this->check_logged_in();
+		$this->load->model('carrier'); // for the form on the profile page
+		
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('phone', 'Phone Number', 'min_length[10]|numeric');
+		$this->form_validation->set_rules('carrier_id', 'Carrier', 'greater_than[0]', array('greater_than' => "You must pick a carrier."));
+		if ($this->form_validation->run() == FALSE) {
+			$this->data['error'] = validation_errors();
+        } else {
+			if ($this->user->update_text_preferences(
+				$this->input->post('send_text'), 
+				$this->input->post('carrier_id'),
+				$this->input->post('phone')
+													)) {
+				$this->data['message'] = "Text preferences updated. Return to the <a href='".base_url('/workshops')."'>main page</a>.";
+			} else {
+				$this->data['error'] = $this->user->error;
+			}
+		
+		}
+		$this->load->view('text_preferences', $this->data);
 	}
 	
 	public function reset() {

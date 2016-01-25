@@ -11,8 +11,9 @@ class messages {
 	function __construct() {
 		$this->CI =& get_instance();
 		$this->CI->load->library('email');
+		$this->CI->load->model('carrier');
+		
 	}
-
 
 	public function send_activation_link($to, $key) {
 		$link = base_url('/users/login/'.$key);

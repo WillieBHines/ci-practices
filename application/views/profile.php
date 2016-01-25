@@ -3,6 +3,11 @@
 
 <p>Hello! You are currently logged in as '<b><?php echo $this->user->cols['email']; ?></b>'.</p>
 
+<p>If you wish, you can <a class='btn btn-primary' href="<?php echo base_url('/users/logout'); ?>">log out</a>.</p>
+
+</div></div>
+<div class='row'><div class='col-md-12'>
+
 
 <h3>Change Your Email Address</h3>
 <p>If you have a new email, enter it below. We will send a link to your new email. Click that link and we'll reset your account to use that email.</p>
@@ -21,17 +26,21 @@ echo $this->form_builder->build_form_horizontal(
                         'type' => 'submit',
 						'label' => 'Change Email'
                 )
-        ));
+        ),
+		array('new_email' => set_value('new_email'))
+	);
 echo $this->form_builder->close_form();
 
 ?>
+
+</div></div>
+<div class='row'><div class='col-md-12'>
+
 <h3>Reset Your Link</h3>
 <p>For the paranoid: This will log you out, generate a new key, and a send a link to your email. If you don't even understand this then don't worry about it. <a class='btn btn-primary' href="<?php echo base_url('/users/reset'); ?>">Reset My Login Link</a></p>
 
-
-<h3>Log Out</h3>
-<p>If you wish, you can <a class='btn btn-primary' href="<?php echo base_url('/users/logout'); ?>">log out</a>.</p>
-
+</div></div>
+<div class='row'><div class='col-md-12'>
 
 <h3>Never Mind</h3>
 <p>Just <a href="<?php echo base_url('/workshops'); ?>">go back to the main page</a>.</p>
