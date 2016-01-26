@@ -15,20 +15,22 @@ class Workshop extends CI_Model {
 		public function prep_workshop_data($row) {
 			
 			$this->load->model('registration');
+			$this->load->model('status');
 			
 			if ($row['when_public'] == 0 ) {
 				$row['when_public'] = '';
 			}
-			$row = $this->format_workshop_startend($row);		
-			$row['enrolled'] = $this->registration->count_enrollments($row['id'], 1);
-			$row['waiting'] = $this->registration->count_enrollments($row['id'], 2);
-			$row['dropped'] = $this->registration->count_enrollments($row['id'], 3);
-			$row['invited'] = $this->registration->count_enrollments($row['id'], 4);
-
+			$row = $this->format_workshop_startend($row);
+			
+			// count enrollments for each status type
+			foreach ($this->status->status_names as $sn => $sid) {
+				$row[$sn] = $this->registration->count_enrollments($row['id'], $sid);
+			}		
+			
 			$row['open'] = ($row['enrolled'] >= $row['capacity'] ? 0 : $row['capacity'] - $row['enrolled']);
 			if (strtotime($row['start']) < strtotime('now')) { 
 				$row['type'] = 'past'; 
-			} elseif ($row['enrolled'] >= $row['capacity'] || $row['waiting'] > 0 || $row['invited'] > 0) { 
+			} elseif ($row['enrolled']+$row['invited']+$row['waiting'] >= $row['capacity']  ) { 
 				$row['type'] = 'soldout'; 
 			} else {
 				$row['type'] = 'open';
@@ -54,7 +56,7 @@ class Workshop extends CI_Model {
 			$wk_doy = date('z', $ts); // workshop day of year
 	
 			if ($wk_doy - $now_doy < 7) {
-				return date('L', $ts); // Monday, Tuesday, Wednesday
+				return date('l', $ts); // Monday, Tuesday, Wednesday
 			} elseif (date('Y', $ts) != date('Y')) {  
 				return date('D M j, Y', $ts);
 			} else {

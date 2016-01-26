@@ -24,7 +24,7 @@ class Public_Controller extends MY_Controller
 		if ($this->session->flashdata('error')) {
 			$this->data['error'] = $this->session->flashdata('error');
 		}
-		$this->output->set_template('workshop_user');
+		$this->output->set_template('user');
     }
 }
 
@@ -40,8 +40,9 @@ class Admin_Controller extends MY_Controller
 
 		if (!$this->user->logged_in() || !$this->user->is_admin()) {
 			$this->session->set_flashdata('error', "You don't have permission to see that page!");
-			redirect('/workshops'); // not logged in? back to front?
+			redirect('/workshops'); // not logged in? back to front
 		}
+		$this->output->set_template('admin');
     }
 }
 

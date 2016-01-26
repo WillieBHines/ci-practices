@@ -19,15 +19,18 @@ class Workshops extends Public_Controller {
 		}
 		
 		// list of workshops / mailchimp form
-		//$this->db->where('start > now() AND when_public < now()');
+		$this->db->select('workshops.*, locations.place, locations.lwhere');
 		$this->db->join('locations', 'workshops.location_id = locations.id');
+		$this->db->order_by('start', 'DESC');
 		$query = $this->db->get('workshops');
+		
 		$workshop_rows = array();
 		foreach ($query->result_array() as $row) {
 			$row = $this->workshop->prep_workshop_data($row);
 			$workshop_rows[] = $row;
 		}
 		$this->data['workshops'] = $workshop_rows;
+		$this->data['admin'] = false; // not admin view
 				
 		$this->load->view('workshop_list', $this->data);
 		

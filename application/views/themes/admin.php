@@ -26,30 +26,6 @@ design quick-fixes taken from:
 	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 	<script src="<?php echo base_url(); ?>assets/themes/workshop/backstretch.js"></script>
 
-	
-
-<?php
-		 foreach($js as $file){
-				echo "\n\t\t";
-				?><script src="<?php echo $file; ?>"></script><?php
-		 } echo "\n\t";
-?>
-<?php
-
-		 foreach($css as $file){
-		 	echo "\n\t\t";
-			?><link rel="stylesheet" href="<?php echo $file; ?>" type="text/css" /><?php
-		 } echo "\n\t";
-?>
-<?php
-		if(!empty($meta))
-			foreach($meta as $name=>$content){
-				echo "\n\t\t";
-				?><meta name="<?php echo $name; ?>" content="<?php echo is_array($content) ? implode(", ", $content) : $content; ?>" /><?php
-		 }
-	?>
-
-
 <script>
 	$( document ).ready(function() {
 	    $.backstretch("<?php echo base_url(); ?>assets/themes/workshop/bb4.jpg");
@@ -66,10 +42,6 @@ design quick-fixes taken from:
 	background: url(<?php echo base_url(); ?>assets/themes/workshop/cream_dust_transparent.png) repeat 0;
 }
 
-h1, h2, h3 { 
-    text-shadow: 1px 1px 1px #ccc;
-	font-weight: normal;
-}
 .page-header { 
     box-shadow: 0 0 1em 1em #ccc;
 }
@@ -80,13 +52,8 @@ h1, h2, h3 {
 	
 <?php
 echo "<div class=\"container\">\n";
-
-echo "<div class=\"jumbotron page-header\">";
-echo "<h1><a href=\"".site_url("/")."\">{$heading}</a></h1>\n";	
-echo "<p>Greetings. This is a list of improv practices being taught or at least organized by Will Hines.";
-echo "</p>";	
-echo "</div>\n";
-
+?>
+<?php
 if (isset($error) && $error) {
 	echo "<div class='alert alert-danger'>{$error}</div>\n";
 }
