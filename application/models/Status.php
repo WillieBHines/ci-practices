@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Status extends CI_Model {
 
-		public $statuses;		// id, network, email
+		public $statuses;		
 		public $status_names;
 
         public function __construct()

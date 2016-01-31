@@ -13,10 +13,14 @@ class Workshop extends MY_Model {
 		
 		public function set_data($id) {
 			$this->set_cols_with_id($id);
-			$this->cols = $this->prep_workshop_data($this->cols);
-			$this->cols = $this->format_workshop_startend($this->cols);
-			return $this->cols;
 			
+			$this->db->where('id', $this->cols['location_id']);
+			$query = $this->db->get('locations');
+			foreach ($query->result_array() as $row) {
+				$this->cols['place'] = $row['place'];
+			}
+			$this->cols = $this->prep_workshop_data($this->cols);
+			return $this->cols;
 		}
 		
 		
@@ -77,13 +81,8 @@ class Workshop extends MY_Model {
 		}
 
 		function friendly_date($time_string) {
-			$ts = strtotime($time_string);
-			$now_doy = date('z'); // day of year
-			$wk_doy = date('z', $ts); // workshop day of year
-	
-			if ($wk_doy - $now_doy < 7) {
-				return date('l', $ts); // Monday, Tuesday, Wednesday
-			} elseif (date('Y', $ts) != date('Y')) {  
+			$ts = strtotime($time_string);	
+			if (date('Y', $ts) != date('Y')) {  
 				return date('D M j, Y', $ts);
 			} else {
 				return date('D M j', $ts);
@@ -94,7 +93,7 @@ class Workshop extends MY_Model {
 
 		// pass in the workshop row as it comes from the database table
 		// add some columns with date / time stuff figured out
-		function format_workshop_startend($row) {	
+		public function format_workshop_startend($row) {	
 			if (date('Y', strtotime($row['start'])) != date('Y')) {
 				$row['showstart'] = date('D M j, Y - g:ia', strtotime($row['start']));
 			} else {

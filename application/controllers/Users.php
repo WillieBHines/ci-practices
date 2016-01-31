@@ -64,6 +64,7 @@ class Users extends Public_Controller {
 	public function reset() {
 		$this->check_logged_in();
 		$this->user->send_link($this->user->cols['email'], true);
+		redirect('/workshops');
 	}
 	
 	public function logout() {
@@ -96,6 +97,19 @@ class Users extends Public_Controller {
 			redirect('/workshops');
 		}
 	}
+
+	public function edit($id) {
+		
+		$this->force_admin();
+		$this->load->model('user', 'subject');
+		$this->subject->set_cols_with_id($id);
+		$this->subject->load_workshops();
+		$this->data['user'] = $this->subject->cols;
+		$this->data['workshops'] = $this->subject->workshops;
+		$this->load->view('user_edit', $this->data);
+		
+	}
+
 
 	private function check_logged_in() {
 		if (!$this->user->logged_in()) {

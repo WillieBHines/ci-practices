@@ -35,11 +35,40 @@ class Workshops extends Public_Controller {
 		$this->load->view('workshop_list', $this->data);
 		
     }
+	
+	
+	public function admin()
+	{
+		$this->force_admin();
 
-    public function comments()
-    {
-            echo 'Look at this!';
-    }
+		// get data
+		$this->db->select('workshops.*, locations.place, locations.lwhere');
+		$this->db->join('locations', 'workshops.location_id = locations.id');
+		$this->db->order_by('start', 'DESC');
+		$query = $this->db->get('workshops');
+		
+		// set it up for the view
+		$workshop_rows = array();
+		foreach ($query->result_array() as $row) {
+			$row = $this->workshop->prep_workshop_data($row);
+			$workshop_rows[] = $row;
+		}
+		$this->data['workshops'] = $workshop_rows;
+		$this->data['admin'] = true; // not admin view
+				
+		$this->load->view('workshop_list', $this->data);
+		
+	}
+	
+	public function edit($id) {
+		$this->force_admin();
+		$this->load->model('status');
+		$this->data['statuses'] = $this->status->statuses;
+		$this->data['wk'] = $this->workshop->set_data($id);
+		$this->data['regs'] = $this->workshop->set_registrations();
+		$this->load->view('workshop_edit', $this->data);
+	}
+	
 
  
 }

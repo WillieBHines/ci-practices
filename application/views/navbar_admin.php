@@ -1,7 +1,7 @@
 <h1>will hines workshops: admin</h1>
 
 	<p><div id="navbar_admin">
-		Admin functions: <a href='<?php echo site_url('admins/')?>'>Main</a>
+		Admin functions: <a href='<?php echo site_url('workshops/admin')?>'>Main</a>
 	</div></p>
 	<p><div id="crud_navbar">
 		CRUD screens: 

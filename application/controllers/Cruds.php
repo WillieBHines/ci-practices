@@ -8,13 +8,10 @@ class Cruds extends Admin_Controller {
 		parent::__construct();
 		$this->output->set_template('admin_crud');
 		$this->load->library('grocery_CRUD');
-		$this->data['js_files'] = array();
-		$this->data['css_files'] = array();
 
 		$this->crud = new grocery_CRUD();
 		$this->crud->set_theme('bootstrap');
 	
-		$this->load->view('navbar_admin');
 	}
 
 	public function index()

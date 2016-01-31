@@ -4,6 +4,7 @@ class User extends MY_Model {
 	
 
 		public $table_name = 'users';
+		public $workshops;
 
         public function __construct()
         {
@@ -63,8 +64,6 @@ class User extends MY_Model {
 				// now get THAT new row
 				$query = $this->db->where('email', $email);
 				$query = $this->db->get('users');			
-			} else {
-				//die('got here');
 			}
 			
 			// set user (id, email, group_id, key)
@@ -76,6 +75,31 @@ class User extends MY_Model {
 			
 			// return key	
 			return $this->cols['ukey'];
+		}
+		
+		
+		public function load_workshops() {
+			$this->load->model('workshop');
+			
+			if ($this->logged_in()) {
+				$this->db->where('user_id', $this->cols['id']);
+				$this->db->join('workshops', 'registrations.workshop_id = workshops.id');
+				$this->db->join('statuses', 'registrations.status_id = statuses.id');
+				$this->db->join('locations', 'workshops.location_id = locations.id');
+				$this->db->select('workshops.*, statuses.status_name, locations.place');
+				$this->db->order_by('workshops.start desc');
+				$query = $this->db->get('registrations');
+				
+				foreach ($query->result_array() as $row) {
+					$this->workshops[] = $this->workshop->format_workshop_startend($row);
+				}
+				return true;
+				
+			} else {
+				$this->error = 'No user set.';
+				return false;
+			}
+
 		}
 		
 		
