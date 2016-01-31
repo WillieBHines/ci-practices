@@ -31,7 +31,7 @@
 		}
 		
 		echo "<tr class='$class'>
-			<td>{$row['title']}</td>
+			<td><a href='".base_url('/admins/edit/'.$row['id'])."'>{$row['title']}</a></td>
 			<td>{$row['friendly_when']}{$public}</td>
 			<td>{$row['place']}</td>
 			<td>{$row['cost']}</td>

@@ -1,16 +1,42 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class Workshop extends CI_Model {
+class Workshop extends MY_Model {
 
-		public $cols; // all the columns from the user
-		public $error;
-		public $message;
+		public $table_name = 'workshops';
+		public $registrations = array();
 
         public function __construct()
         {
                 parent::__construct();
 								
         }
+		
+		public function set_data($id) {
+			$this->set_cols_with_id($id);
+			$this->cols = $this->prep_workshop_data($this->cols);
+			$this->cols = $this->format_workshop_startend($this->cols);
+			return $this->cols;
+			
+		}
+		
+		
+		public function set_registrations() {			
+			if (!isset($this->cols['id']) || !$this->cols['id']) {
+				$this->error = 'No workshop set.';
+				return false;
+			}
+			
+			$this->db->select('registrations.*, users.email, statuses.status_name');
+			$this->db->join('users', 'registrations.user_id = users.id');
+			$this->db->join('statuses', 'registrations.status_id = statuses.id');
+			$this->db->where('workshop_id', $this->cols['id']);
+			$this->db->order_by('status_id asc, last_modified');
+			$query = $this->db->get('registrations');
+			foreach ($query->result_array() as $row) {
+				$this->registrations[] = $row;
+			}
+			return $this->registrations;
+		}
 		
 		public function prep_workshop_data($row) {
 			

@@ -6,6 +6,8 @@ class Admins extends Admin_Controller {
 	{
 		parent::__construct();
 		$this->load->library('grocery_CRUD');
+		$this->load->model('workshop');
+		
 		$this->data['js_files'] = array();
 		$this->data['css_files'] = array();
 		
@@ -34,7 +36,13 @@ class Admins extends Admin_Controller {
 		
 	}
 
-
+	public function edit($id) {
+		$this->data['wk'] = $this->workshop->set_data($id);
+		$this->data['regs'] = $this->workshop->set_registrations();
+		$this->load->view('workshop_edit', $this->data);
+		
+		
+	}
 
 
 } 

@@ -1,11 +1,9 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class User extends CI_Model {
+class User extends MY_Model {
 	
 
-		public $cols; // all the columns from the user
-		public $error;
-		public $message;
+		public $table_name = 'users';
 
         public function __construct()
         {
