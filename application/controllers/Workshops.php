@@ -62,10 +62,23 @@ class Workshops extends Public_Controller {
 	
 	public function edit($id) {
 		$this->force_admin();
-		$this->load->model('status');
+		$this->load->model(array('status', 'location'));
 		$this->data['statuses'] = $this->status->statuses;
+		
 		$this->data['wk'] = $this->workshop->set_data($id);
 		$this->data['regs'] = $this->workshop->set_registrations();
+			
+        $this->form_validation->set_rules('title', 'Title', 'required');
+        $this->form_validation->set_rules('capacity', 'Capacity', 'numeric');
+        $this->form_validation->set_rules('cost', 'Cost', 'numeric');		
+				
+	    if ($this->form_validation->run() == TRUE) {
+			$this->workshop->update_cols_from_form();
+			$this->workshop->update_db_from_cols();
+			$this->data['wk'] = $this->workshop->set_data($id);
+			$this->data['message'] = "Workshop updated!";
+	    }
+		
 		$this->load->view('workshop_edit', $this->data);
 	}
 	

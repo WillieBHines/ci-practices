@@ -102,10 +102,26 @@ class Users extends Public_Controller {
 		
 		$this->force_admin();
 		$this->load->model('user', 'subject');
+		$this->load->model(array('carrier', 'group'));
+		
 		$this->subject->set_cols_with_id($id);
 		$this->subject->load_workshops();
 		$this->data['user'] = $this->subject->cols;
 		$this->data['workshops'] = $this->subject->workshops;
+		
+        $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+		$this->form_validation->set_rules('phone', 'Phone Number', 'min_length[10]|numeric');
+				
+	    if ($this->form_validation->run() == TRUE) {
+			$this->subject->update_cols_from_form();
+			$this->subject->update_db_from_cols();
+			$this->data['user'] = $this->subject->set_cols_with_id($id);
+			$this->data['message'] = "User updated!";
+	    }
+		
+		
+		
+		
 		$this->load->view('user_edit', $this->data);
 		
 	}

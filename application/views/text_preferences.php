@@ -19,7 +19,7 @@ echo $this->form_builder->build_form_horizontal(
                       'id' => 'carrier_id',
 					  'label' => 'Carrier',
                       'type' => 'dropdown',
-                      'options' => $this->carrier->carriers_drop
+                      'options' => $this->carrier->dropdown_array
               ),			  
                 array(/* INPUT */
                         'id' => 'phone',

@@ -10,7 +10,7 @@ class MY_Controller extends CI_Controller {
 		
 		// essential models, libraries, helpers
 		$this->load->model('user');
-		$this->load->library('form_builder');
+		$this->load->library(array('form_builder', 'form_validation'));
 		$this->load->helper('form');
 
 		// for the admin template

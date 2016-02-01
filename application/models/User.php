@@ -79,7 +79,7 @@ class User extends MY_Model {
 		
 		
 		public function load_workshops() {
-			$this->load->model('workshop');
+			$this->load->model(array('workshop', 'registration'));
 			
 			if ($this->logged_in()) {
 				$this->db->where('user_id', $this->cols['id']);
@@ -91,6 +91,9 @@ class User extends MY_Model {
 				$query = $this->db->get('registrations');
 				
 				foreach ($query->result_array() as $row) {
+					if ($row['status_name'] == 'waiting') {
+						$row['rank'] = $this->registration->figure_rank($row['id'], $this->cols['id']);
+					}
 					$this->workshops[] = $this->workshop->format_workshop_startend($row);
 				}
 				return true;

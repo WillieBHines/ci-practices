@@ -34,18 +34,9 @@ design quick-fixes taken from:
 	
 	
 <style>
-.row {
-	margin-bottom: 40px;
-}
-
 .container {	
 	background: url(<?php echo base_url(); ?>assets/themes/workshop/cream_dust_transparent.png) repeat 0;
 }
-
-.page-header { 
-    box-shadow: 0 0 1em 1em #ccc;
-}
-
 </style>
 </head>
 <body>

@@ -89,6 +89,9 @@ class Workshop extends MY_Model {
 			}
 		}	
 	
+		public function friendly_datetime($time_string) {
+			return $this->friendly_date.' '.$this->friendly_time;
+		}
 	
 
 		// pass in the workshop row as it comes from the database table
