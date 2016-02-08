@@ -14,7 +14,7 @@
 		foreach ($regs as $reg) {
 			if ($reg['status_id'] != $sid) { continue; }
 			
-			echo "<li><a href='".base_url('/users/edit/'.$reg['user_id'])."'>{$reg['email']}</a> <small>".date('D M j Y g:ia', strtotime($reg['last_modified']))."</small></li>\n";
+			echo "<li><a href='".base_url('/users/edit/'.$reg['user_id'])."'>{$reg['email']}</a> <small>".date('D M j Y g:ia', strtotime($reg['last_modified']))."</small> - <a href='".base_url('/registrations/edit/'.$reg['id'])."'>change</a></li>\n";
 		}
 		echo "</ul>\n";
 

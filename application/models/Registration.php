@@ -7,9 +7,22 @@ class Registration extends MY_Model {
 		public function __construct()
         {
                 parent::__construct();
+				$this->load->model('workshop');
 								
         }
 		
+		public function set_data($id) {
+			$this->db->where('registrations.id', $id);
+			$this->db->join('statuses', 'registrations.status_id = statuses.id');
+			$this->db->join('users', 'registrations.user_id = users.id');
+			$this->db->join('workshops', 'registrations.workshop_id = workshops.id');
+			$this->db->select('registrations.*, workshops.title, users.email, statuses.status_name');
+			$query = $this->db->get('registrations');
+			foreach ($query->result_array() as $row) {
+				$this->cols = $row;
+			}
+			return $this->cols;
+		}
 
 		public function count_enrollments($wid, $status_id = 1) {
 			$this->db->where('workshop_id', $wid);
