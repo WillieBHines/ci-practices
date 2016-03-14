@@ -8,7 +8,7 @@
 	}
 
 	echo "<table class='table table-striped'>\n";
-	echo "<tr><th>Title</th><th>When</th><th>Where</th><th>Cost</th><th>Spots</th></tr>\n";
+	echo "<tr><th>Title</th><th>When</th><th>Where</th><th>Cost</th><th>Spots</th><th>Your Status</th></tr>\n";
 	foreach ($workshops as $row) {
 
 
@@ -23,21 +23,26 @@
 		}	
 		
 		
+		// row color
 		$class = '';
-		if ($row['type'] == 'soldout') {
+		if (date('z', strtotime($row['start']) == date('z')))  {
+			$class = 'warning';
+		} elseif ($row['type'] == 'soldout') {
 			$class = 'warning';
 		} elseif ($row['type'] == 'open') {
 			$class = 'success';
 		}
 		
+		if ($admin) { $row['action'] = ''; }
+						
 		echo "<tr class='$class'>
-			<td><a href='".base_url('/workshops/edit/'.$row['id'])."'>{$row['title']}</a><br><small>{$row['notes']}</small></td>
-			<td>{$row['friendly_when']}{$public}</td>
-			<td>{$row['place']}</td>
+			<td>".($admin ? "<a href='".base_url('/workshops/edit/'.$row['id'])."'>{$row['title']}</a>" : $row['title'])."<br><small>{$row['notes']}</small></td>
+			<td>{$row['when']}{$public}</td>
+			<td>{$row['place']}<br><small>{$row['lwhere']}</small></td>
 			<td>{$row['cost']}</td>
 			<td>".number_format($row['open'], 0)." of ".number_format($row['capacity'], 0).",<br> ".number_format($row['waiting']+$row['invited'])." waiting</td>
-			</tr>\n";
-			
+			<td>{$row['action']}</td>
+			</tr>\n";			
 	}
 	echo "</table>\n";
 

@@ -2,7 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Registration extends MY_Model {
 
-		public $table_name = 'registrations';	
+		public $table_name = 'registrations';
+		public $changes;	
         
 		public function __construct()
         {
@@ -48,5 +49,29 @@ class Registration extends MY_Model {
 			}
 			return $i;
 		}
+		
+		public function get_changes($wid = null, $cleave = true) {
+			$this->db->select('users.email, workshops.title, workshops.start, statuses.status_name, status_change_log.happened');
+			if ($wid) {
+				$this->db->where('workshop_id', $wid);
+			}
+			$this->db->join('workshops', 'workshops.id = status_change_log.workshop_id');
+			$this->db->join('users', 'users.id = status_change_log.user_id');
+			$this->db->join('statuses', 'statuses.id = status_change_log.status_id');
+			
+			$this->db->order_by('happened', 'DESC');
+			$query = $this->db->get('status_change_log');
+			foreach ($query->result_array() as $row) {
+				if ($cleave) {
+					if (strtotime($row['happened']) < strtotime(now())) {
+						continue; // skip past ones if cleave is true
+					}
+				}
+				$this->changes[] = $row;
+			}
+			return $this->changes;
+		}
+		
+		
 }
 	

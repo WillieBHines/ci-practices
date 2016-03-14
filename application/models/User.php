@@ -4,7 +4,7 @@ class User extends MY_Model {
 	
 
 		public $table_name = 'users';
-		public $workshops;
+		public $workshops = array();
 
         public function __construct()
         {
@@ -86,7 +86,7 @@ class User extends MY_Model {
 				$this->db->join('workshops', 'registrations.workshop_id = workshops.id');
 				$this->db->join('statuses', 'registrations.status_id = statuses.id');
 				$this->db->join('locations', 'workshops.location_id = locations.id');
-				$this->db->select('workshops.*, statuses.status_name, locations.place');
+				$this->db->select('workshops.*, statuses.status_name, locations.place, registrations.id as registration_id');
 				$this->db->order_by('workshops.start desc');
 				$query = $this->db->get('registrations');
 				
@@ -96,7 +96,7 @@ class User extends MY_Model {
 					}
 					$this->workshops[] = $this->workshop->format_workshop_startend($row);
 				}
-				return true;
+				return $this->workshops;
 				
 			} else {
 				$this->error = 'No user set.';

@@ -34,7 +34,8 @@ class Users extends Public_Controller {
 	
 	public function profile() {
 		$this->check_logged_in();
-		$this->load->view('profile');
+		$this->load->model('carrier'); // for the form on the profile page
+		$this->load->view('profile', $this->data);
 	}
 
 	public function text_preferences() {
@@ -58,7 +59,7 @@ class Users extends Public_Controller {
 			}
 		
 		}
-		$this->load->view('text_preferences', $this->data);
+		$this->load->view('profile', $this->data);
 	}
 	
 	public function reset() {

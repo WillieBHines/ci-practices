@@ -12,6 +12,7 @@ class Workshops extends Public_Controller {
     public function index() {
 
 		// log in box / greetings
+		$this->data['your workshops'] = array();
 		if ($this->user->logged_in()) {
 			$this->load->view('logged_in', $this->data);	
 		} else {
@@ -26,16 +27,24 @@ class Workshops extends Public_Controller {
 		
 		$workshop_rows = array();
 		foreach ($query->result_array() as $row) {
-			$row = $this->workshop->prep_workshop_data($row);
+			$row = $this->workshop->prep_workshop_data($row, $this->user);
 			$workshop_rows[] = $row;
 		}
 		$this->data['workshops'] = $workshop_rows;
 		$this->data['admin'] = false; // not admin view
-				
+						
 		$this->load->view('workshop_list', $this->data);
 		
+		// log in box / greetings
+		if ($this->user->logged_in()) {
+			$this->load->view('user_workshops', $this->data);	
+		}		
     }
 	
+	public function view($id) {
+		$this->data['row'] = $this->workshop->set_data($id, $this->user);
+		$this->load->view('workshop_view', $this->data);
+	}
 	
 	public function admin()
 	{
@@ -67,6 +76,7 @@ class Workshops extends Public_Controller {
 		
 		$this->data['wk'] = $this->workshop->set_data($id);
 		$this->data['regs'] = $this->workshop->set_registrations();
+		$this->data['changes'] = $this->workshop->get_changes();
 			
         $this->form_validation->set_rules('title', 'Title', 'required');
         $this->form_validation->set_rules('capacity', 'Capacity', 'numeric');
@@ -82,6 +92,19 @@ class Workshops extends Public_Controller {
 		$this->load->view('workshop_edit', $this->data);
 	}
 	
+	public function register($wid) {
+		if (!$wid) {
+			$this->session->set_flashdata('error', "Can't figure what workshop you want to register in.");
+			redirect('/workshops'); // not logged in? back to front
+			return false;
+		}
+		if (!$this->user->logged_in()) {
+			$this->session->set_flashdata('error', "Can't register if you're not logged in.");
+			redirect('/workshops'); // not logged in? back to front
+			return false;
+		}
+
+	}
 
  
 }

@@ -53,6 +53,7 @@ if (isset($message) && $message) {
 }
 echo $output;
 ?>		
+<p>&nbsp;</p>
 </div>
 </body>
 </html>

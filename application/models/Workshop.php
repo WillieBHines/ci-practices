@@ -4,6 +4,7 @@ class Workshop extends MY_Model {
 
 		public $table_name = 'workshops';
 		public $registrations = array();
+		public $changes = array();
 
         public function __construct()
         {
@@ -11,15 +12,16 @@ class Workshop extends MY_Model {
 								
         }
 		
-		public function set_data($id) {
+		public function set_data($id, $user = null) {
 			$this->set_cols_with_id($id);
 			
 			$this->db->where('id', $this->cols['location_id']);
 			$query = $this->db->get('locations');
 			foreach ($query->result_array() as $row) {
 				$this->cols['place'] = $row['place'];
+				$this->cols['lwhere'] = $row['lwhere'];
 			}
-			$this->cols = $this->prep_workshop_data($this->cols);
+			$this->cols = $this->prep_workshop_data($this->cols, $user);
 			return $this->cols;
 		}
 		
@@ -42,7 +44,18 @@ class Workshop extends MY_Model {
 			return $this->registrations;
 		}
 		
-		public function prep_workshop_data($row) {
+		public function get_changes() {
+			if (!$this->cols['id']) {
+				$this->error = 'No workshop set.';
+				return false;
+			}
+			$this->load->model('registration');
+			$this->changes = $this->registration->get_changes($this->cols['id'], false);
+			return $this->changes;
+		}		
+		
+				
+		public function prep_workshop_data($row, $user = null) {
 			
 			$this->load->model('registration');
 			$this->load->model('status');
@@ -65,8 +78,61 @@ class Workshop extends MY_Model {
 			} else {
 				$row['type'] = 'open';
 			}
+			
+			// if we're given user, create call to action
+			$row['action'] = ($user ? $this->create_user_action($row, $user) : '');			
+			
 			return $row;
 			//$row = wbh_check_last_minuteness($row);
+			
+		}
+		
+		// $row is workshop in question, $user is logged in user
+		private function create_user_action($row, $user) {
+			
+			
+			if (!$user->logged_in()) {
+				return '<em>not logged in </em>';
+			}
+			if (!$user->workshops) {
+				$this->user->load_workshops();
+			}
+			
+			$action = '';
+			
+			$enroll_button = "<a class='btn btn-primary' href='".base_url('/registrations/enroll/'.$row['id'].'/'.$user->cols['id'])."'>";
+			if ($row['type'] == 'soldout') {
+				$enroll_button .= 'Join Wait List';
+			} else {
+				$enroll_button .= 'Enroll';
+			}
+			$enroll_button .= "</a>";
+				
+			$in_it = false;
+			foreach ($user->workshops as $wk) {
+				if ($wk['id'] == $row['id']) { // registration
+					$in_it = true;
+					if ($wk['status_name'] == 'enrolled') {
+
+						$action = "Enrolled <a class='btn btn-danger' href='".base_url('/registrations/drop/'.$wk['registration_id'])."'>Drop?</a>";
+					
+					} elseif  ($wk['status_name'] == 'waiting') {
+					
+						$action = "Waiting <a class='btn btn-danger' href='".base_url('/registrations/drop/'.$wk['registration_id'])."'>Drop?</a>";
+					
+					} elseif ($wk['status_name'] == 'invited') {
+						$action = "Invited <a class='btn btn-primary' href='".base_url('/registrations/accept/'.$wk['registration_id'])."'>Accept</a> <a class='btn btn-primary' href='".base_url('/registrations/decline/'.$wk['registration_id'])."'>Decline</a> ";
+
+					} elseif ($wk['status_name'] == 'dropped') {
+						$action = "Dropped $enroll_button";
+					}
+				}
+			}
+			// if you're not in it, you could enroll
+			if (!$in_it) {
+				$action = "None $enroll_button";
+			}
+			return $action;
 			
 		}
 		

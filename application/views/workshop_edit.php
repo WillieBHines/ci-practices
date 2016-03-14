@@ -8,18 +8,19 @@
 	echo "<div class='col-md-6'>\n";
 
 	echo "<h3>Registations</h3>\n";
-	echo "<ul>\n";
 	foreach ($statuses as $sid => $sname) {
-		echo "<h3>$sname ({$wk[$sname]})</h3>\n<ul>";
+		echo "<h3>$sname ({$wk[$sname]})</h3>\n";
 		foreach ($regs as $reg) {
 			if ($reg['status_id'] != $sid) { continue; }
 			
-			echo "<li><a href='".base_url('/users/edit/'.$reg['user_id'])."'>{$reg['email']}</a> <small>".date('D M j Y g:ia', strtotime($reg['last_modified']))."</small> - <a href='".base_url('/registrations/edit/'.$reg['id'])."'>change</a></li>\n";
+			echo "<div class='row'><div class='col-md-6'><a href='".base_url('/users/edit/'.$reg['user_id'])."'>{$reg['email']}</a><br><small>".date('D M j Y g:ia', strtotime($reg['last_modified']))."</small></div>
+				<div class='col-md-6'>
+					<a class='btn btn-primary btn-xs' href='".base_url('/registrations/edit/'.$reg['id'])."'>change</a>
+					<!--<a class='btn btn-danger btn-xs' href='".base_url('/registrations/delete/'.$reg['id'])."'>remove</a>-->
+				</div></div>\n";
 		}
-		echo "</ul>\n";
 
 	}
-	echo "</ul>\n";
 	echo "</div>\n";
 	
 	echo "<div class='col-md-6'>\n";
@@ -88,9 +89,26 @@
 		);
 	echo $this->form_builder->close_form();
 	
+	echo  "</div> <!-- end of row -->\n";
 	echo "</div>\n";
 
-	echo  "</div> <!-- end of row -->\n";
+	// change log
+	
+	echo  "<div class='row'><div class='col-md-12'>\n";
+	echo "<h3>Change Log</h3>";
+	echo "</div></div>\n";
+	
+	foreach ($changes as $c) {
+		echo "<div class='row'>
+			<!--<div class='col-sm-3'>{$c['title']} ({$c['start']})</div>-->
+
+			<div class='col-sm-3'>{$c['email']}</div>
+			<div class='col-sm-1'>{$c['status_name']}</div>
+			<div class='col-sm-3'>".date('D M j Y g:ia', strtotime($c['happened']))."</div>
+			</div>\n";
+	}
+	
+	
+
 
 ?>
-	
