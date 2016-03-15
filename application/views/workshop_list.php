@@ -11,7 +11,6 @@
 	echo "<tr><th>Title</th><th>When</th><th>Where</th><th>Cost</th><th>Spots</th><th>Your Status</th></tr>\n";
 	foreach ($workshops as $row) {
 
-
 		if ($row['type'] == 'past' && !$admin) { continue; }
 		if (strtotime($row['when_public']) > time() && !$admin) {
 			continue;
@@ -25,8 +24,8 @@
 		
 		// row color
 		$class = '';
-		if (date('z', strtotime($row['start']) == date('z')))  {
-			$class = 'warning';
+		if (date('z', strtotime($row['start'])) == date('z'))  {
+			$class = 'info';
 		} elseif ($row['type'] == 'soldout') {
 			$class = 'warning';
 		} elseif ($row['type'] == 'open') {
@@ -36,7 +35,7 @@
 		if ($admin) { $row['action'] = ''; }
 						
 		echo "<tr class='$class'>
-			<td>".($admin ? "<a href='".base_url('/workshops/edit/'.$row['id'])."'>{$row['title']}</a>" : $row['title'])."<br><small>{$row['notes']}</small></td>
+			<td><a href='".base_url('/workshops/'.($admin ? 'edit' : 'view').'/'.$row['id'])."'>{$row['title']}</a><br><small>{$row['notes']}</small></td>
 			<td>{$row['when']}{$public}</td>
 			<td>{$row['place']}<br><small>{$row['lwhere']}</small></td>
 			<td>{$row['cost']}</td>

@@ -80,7 +80,7 @@ class Workshop extends MY_Model {
 			}
 			
 			// if we're given user, create call to action
-			$row['action'] = ($user ? $this->create_user_action($row, $user) : '');			
+			$row = $this->set_user_action($row, $user);		
 			
 			return $row;
 			//$row = wbh_check_last_minuteness($row);
@@ -88,10 +88,10 @@ class Workshop extends MY_Model {
 		}
 		
 		// $row is workshop in question, $user is logged in user
-		private function create_user_action($row, $user) {
+		private function set_user_action($row, $user = null) {
 			
 			
-			if (!$user->logged_in()) {
+			if (!$user || !$user->logged_in()) {
 				return '<em>not logged in </em>';
 			}
 			if (!$user->workshops) {
@@ -102,7 +102,7 @@ class Workshop extends MY_Model {
 			
 			$enroll_button = "<a class='btn btn-primary' href='".base_url('/registrations/enroll/'.$row['id'].'/'.$user->cols['id'])."'>";
 			if ($row['type'] == 'soldout') {
-				$enroll_button .= 'Join Wait List';
+				$enroll_button .= 'Join the Wait List';
 			} else {
 				$enroll_button .= 'Enroll';
 			}
@@ -111,28 +111,30 @@ class Workshop extends MY_Model {
 			$in_it = false;
 			foreach ($user->workshops as $wk) {
 				if ($wk['id'] == $row['id']) { // registration
+					$row['status_name'] = $wk['status_name'];
 					$in_it = true;
 					if ($wk['status_name'] == 'enrolled') {
 
-						$action = "Enrolled <a class='btn btn-danger' href='".base_url('/registrations/drop/'.$wk['registration_id'])."'>Drop?</a>";
+						$action = "Enrolled. Want to <a class='btn btn-danger' href='".base_url('/registrations/drop/'.$wk['registration_id'])."'>drop?</a>";
 					
 					} elseif  ($wk['status_name'] == 'waiting') {
 					
-						$action = "Waiting <a class='btn btn-danger' href='".base_url('/registrations/drop/'.$wk['registration_id'])."'>Drop?</a>";
+						$action = "Wait list (spot {$wk['rank']}). Want to <a class='btn btn-danger' href='".base_url('/registrations/drop/'.$wk['registration_id'])."'>drop?</a>";
 					
 					} elseif ($wk['status_name'] == 'invited') {
-						$action = "Invited <a class='btn btn-primary' href='".base_url('/registrations/accept/'.$wk['registration_id'])."'>Accept</a> <a class='btn btn-primary' href='".base_url('/registrations/decline/'.$wk['registration_id'])."'>Decline</a> ";
+						$action = "You have an invitaion to join. <a class='btn btn-primary' href='".base_url('/registrations/accept/'.$wk['registration_id'])."'>Accept</a> or <a class='btn btn-primary' href='".base_url('/registrations/decline/'.$wk['registration_id'])."'>decline?</a> ";
 
 					} elseif ($wk['status_name'] == 'dropped') {
-						$action = "Dropped $enroll_button";
+						$action = "You've dropped. Want to $enroll_button ?";
 					}
 				}
 			}
 			// if you're not in it, you could enroll
 			if (!$in_it) {
-				$action = "None $enroll_button";
+				$action = "Not enrolled. Want to $enroll_button";
 			}
-			return $action;
+			$row['action'] = $action;
+			return $row;
 			
 		}
 		
