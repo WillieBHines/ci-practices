@@ -63,7 +63,7 @@ class Registrations extends Public_Controller {
 			}
 		}
 		
-		redirect('/workshops'); // return to the front
+		redirect('/workshops/view/'.$wid); // return to the view page for that workshop
 		return true;
 		
 	}
