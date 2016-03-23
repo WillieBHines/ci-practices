@@ -63,7 +63,7 @@ class Registration extends MY_Model {
 			$query = $this->db->get('status_change_log');
 			foreach ($query->result_array() as $row) {
 				if ($cleave) {
-					if (strtotime($row['happened']) < strtotime(now())) {
+					if (strtotime($row['start']) < strtotime("now")) {
 						continue; // skip past ones if cleave is true
 					}
 				}

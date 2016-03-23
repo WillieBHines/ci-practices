@@ -106,5 +106,12 @@ class Workshops extends Public_Controller {
 
 	}
 
+	public function changes() {
+		$this->force_admin();
+		$this->load->model('registration');
+		$this->data['changes'] = $this->registration->get_changes();
+		$this->load->view('workshop_changes', $this->data);	
+	}
+
  
 }

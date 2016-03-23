@@ -92,7 +92,8 @@ class Workshop extends MY_Model {
 			
 			
 			if (!$user || !$user->logged_in()) {
-				return '<em>not logged in </em>';
+				$row['action'] = '<em>not logged in </em>';
+				return $row;
 			}
 			if (!$user->workshops) {
 				$this->user->load_workshops();
