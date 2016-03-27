@@ -8,6 +8,6 @@
 	}
 ?></p>
 
-<p>Go to your <a class='btn btn-primary' href="<?php echo  base_url('/users/profile'); ?>">profile page</a> to <b>set your texting preferences</b>, <b>change your email</b> or <b>logout</b>.</p>
+<p>Go to your <a class='btn btn-primary' href="<?php echo  base_url('/users/profile'); ?>">profile page</a> to set your <b>texting preferences</b>, <b>change your email</b> or <b>logout</b>.</p>
 	
 		

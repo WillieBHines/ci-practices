@@ -3,7 +3,7 @@
 class MY_Model extends CI_Model {
 	
 	public $table_name;
-	public $cols;
+	public $cols = array();
 		
 	public $error;
 	public $message;
@@ -16,6 +16,15 @@ class MY_Model extends CI_Model {
 	
 	function __construct() {
 		parent::__construct();
+	}
+	
+	
+	public function is_id_set() {
+		if (isset($this->cols) && isset($this->cols['id']) && $this->cols['id'] > 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public function set_cols_with_id($id) {
@@ -32,6 +41,10 @@ class MY_Model extends CI_Model {
 		$query = $this->db->get($this->table_name);
 		foreach ($query->result_array() as $row) {
 			$this->cols = $row;
+		}
+		if (count($this->cols) == 0) {
+			$this->error = 'Could not find any data';
+			return false;
 		}
 		return $this->cols;
 	}
@@ -60,6 +73,17 @@ class MY_Model extends CI_Model {
 		$this->db->where('id', $this->cols['id']);
 		$this->db->update($this->table_name, $data);
 	}
+	
+	public function insert_db_from_cols() {
+		$fields = $this->db->list_fields($this->table_name); // field names
+		foreach ($fields as $f) { // make sure we only use things that have db columns
+			if (isset($this->cols[$f]) && $f != 'id') {
+				$data[$f] = $this->cols[$f];
+			}
+		}
+		$this->db->insert($this->table_name, $data);
+	}
+	
 	
 	// for populating forms
 	public function set_dropdown_arrays() {

@@ -32,7 +32,13 @@ class Users extends Public_Controller {
 	}
 	
 	
-	public function profile() {
+	public function profile($key = null) {
+		if ($key) {
+			if (!$this->user->set_user_with_key($key)) {
+				$this->data['error'] = $this->user->error;
+			}
+		}
+		
 		$this->check_logged_in();
 		$this->load->model('carrier'); // for the form on the profile page
 		$this->load->view('profile', $this->data);
@@ -130,7 +136,7 @@ class Users extends Public_Controller {
 
 	private function check_logged_in() {
 		if (!$this->user->logged_in()) {
-			$this->session->set_flashdata('You need to be logged in to see your profile.');
+			$this->session->set_flashdata('message', 'You need to be logged in to see your profile.');
 			redirect('/workshops');
 			return false;
 		}

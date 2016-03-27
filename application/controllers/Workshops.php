@@ -9,7 +9,13 @@ class Workshops extends Public_Controller {
  
  
     //public function index($name, $id)
-    public function index() {
+    public function index($key = null) {
+
+		if ($key) {
+			if (!$this->user->set_user_with_key($key)) {
+				$this->data['error'] = $this->user->error;
+			}
+		}
 
 		// log in box / greetings
 		$this->data['your workshops'] = array();
@@ -69,6 +75,33 @@ class Workshops extends Public_Controller {
 		
 	}
 	
+	public function add($wid = null) {
+		$this->force_admin();
+		
+		$this->data['wk'] = array();
+		if ($wid) {
+			$this->workshop->set_cols_with_id($wid);
+			$this->data['wk'] = $this->workshop->cols;
+		}
+		
+		$this->load->model(array('status', 'location'));
+		$this->data['statuses'] = $this->status->statuses;
+					
+        $this->form_validation->set_rules('title', 'Title', 'required');
+        $this->form_validation->set_rules('capacity', 'Capacity', 'numeric');
+        $this->form_validation->set_rules('cost', 'Cost', 'numeric');		
+				
+	    if ($this->form_validation->run() == TRUE) {
+			$this->workshop->update_cols_from_form();
+			$this->workshop->insert_db_from_cols();
+			//$this->data['wk'] = $this->workshop->set_data($this->db->insert_id());
+			$this->session->set_flashdata('message', "Workshop '{$this->workshop->cols['title']}' added!");
+			redirect('/workshops/admin');
+	    }
+		
+		$this->load->view('workshop_add', $this->data);	
+	}
+	
 	public function edit($id) {
 		$this->force_admin();
 		$this->load->model(array('status', 'location'));
@@ -92,18 +125,33 @@ class Workshops extends Public_Controller {
 		$this->load->view('workshop_edit', $this->data);
 	}
 	
-	public function register($wid) {
-		if (!$wid) {
-			$this->session->set_flashdata('error', "Can't figure what workshop you want to register in.");
-			redirect('/workshops'); // not logged in? back to front
-			return false;
+	public function delete($wid) {
+		$this->force_admin();
+		if ($this->workshop->set_data($wid)) {
+			$this->session->set_flashdata('message', "Do you wish to really delete workshop '{$this->workshop->cols['title']}' <a class='btn btn-danger' href='".base_url("/workshops/condelete/{$wid}")."'>Yes delete</a>");
+			
+		} else {
+			$this->session->set_flashdata('error', "Tried to delete workshop number '$wid' but I could not find that workshop.");
 		}
-		if (!$this->user->logged_in()) {
-			$this->session->set_flashdata('error', "Can't register if you're not logged in.");
-			redirect('/workshops'); // not logged in? back to front
-			return false;
+		redirect("/workshops/edit/{$wid}");
+	}
+	
+	public function condelete($wid) {
+		if ($this->workshop->set_data($wid)) {
+			$this->session->set_flashdata('error', "Workshop '{$this->workshop->cols['title']}' deleted!");
+			
+			$this->db->where('workshop_id', $wid);
+			$this->db->delete('registrations');
+			$this->db->where('workshop_id', $wid);
+			$this->db->delete('status_change_log');
+			$this->db->where('id', $wid);
+			$this->db->delete('workshops');
+			
+		} else {
+			$this->session->set_flashdata('error', "Tried to delete workshop number '$wid' but I could not find that workshop.");
 		}
-
+		redirect('/workshops/admin');
+		
 	}
 
 	public function changes() {

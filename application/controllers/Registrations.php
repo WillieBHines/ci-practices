@@ -2,9 +2,10 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Registrations extends Public_Controller {
 
+
     function __construct() {
 		parent::__construct();
-		$this->load->model('registration');
+		$this->load->model(array('user', 'workshop', 'status', 'registration'));
 	}
 
 	
@@ -24,7 +25,10 @@ class Registrations extends Public_Controller {
 			$this->registration->update_cols_from_form();
 
 			// update the status column and status change log first
-			$this->change_status($this->registration->cols['workshop_id'], $this->registration->cols['user_id'], $this->registration->cols['status_id']); 
+			$this->registration->change_status(
+			$this->registration->cols['workshop_id'], 
+			$this->registration->cols['user_id'], 
+			$this->registration->cols['status_id']); 
 
 			// now update the rest
 			$this->registration->update_db_from_cols();
@@ -37,73 +41,92 @@ class Registrations extends Public_Controller {
 		$this->load->view('registration_edit', $this->data);
 	}
 	
-	public function enroll($wid, $uid) {
-		$this->load->model(array('user', 'workshop', 'status'));
-		$this->workshop->set_data($wid);
+	public function enroll($wid, $key) {
 		
-		// figure target status: enrolled or waiting?
+		$this->figure_workshop($wid);
+		$status_id = $this->status->status_names['enrolled'];
+		
+		// change enroll to waiting if workshop is sold out
 		if ($this->workshop->cols['type'] == 'soldout') {
 			$status_id = $this->status->status_names['waiting'];
-		} else {
-			$status_id = $this->status->status_names['enrolled'];
-		}	
+		}
 		
-		// set status change log first
-		if ($this->change_status($wid, $uid, $status_id)) {
-			if ($this->status->statuses[$status_id] == 'waiting') {
-				$this->session->set_flashdata('message', "Added user '{$this->user->cols['email']}' to waiting list for workshop '{$this->workshop->cols['title']}'.");
-			} else {
-				$this->session->set_flashdata('message', "Enrolled user '{$this->user->cols['email']}' in workshop '{$this->workshop->cols['title']}'.");
-			}
+		$this->enact_status_change($wid, $key, $status_id);
+		
+	}
+	
+	public function accept($wid, $key) {
+		$status_id = $this->status->status_names['enrolled'];
+		$this->enact_status_change($wid, $key, $status_id);
+	}
+	public function decline($wid, $key) {
+		$status_id = $this->status->status_names['dropped'];
+		$this->enact_status_change($wid, $key, $status_id);
+	}
+	public function drop($wid, $key) {
+		$this->figure_workshop($wid);
+		$this->session->set_flashdata('message', "Do you wish to really drop out of workshop '{$this->workshop->cols['title']}' <a class='btn btn-danger' href='".base_url("/registrations/condrop/{$wid}/{$key}")."'>Yes, drop out.</a>");
+		redirect("/workshops/view/{$wid}");
+		
+	}
+	public function condrop($wid, $key) {
+		$status_id = $this->status->status_names['dropped'];
+		$this->enact_status_change($wid, $key, $status_id);
+	}
+	
+
+	private function enact_status_change($wid, $key, $status_id) {
+		
+		$this->figure_user($key);
+		$this->figure_workshop($wid);	
+		
+		if ($this->registration->change_status(
+			$this->workshop->cols['id'], 
+			$this->user->cols['id'], 
+			$status_id)) {
+				
+			$this->session->set_flashdata('message', $this->registration->message);
 		} else {
-			if ($this->status->statuses[$status_id] == 'waiting') {
-				$this->session->set_flashdata('message', "User '{$this->user->cols['email']}' is already on the waiting list for workshop '{$this->workshop->cols['title']}'.");
-			} else {
-				$this->session->set_flashdata('message', "User '{$this->user->cols['email']}' is already enrolled for workshop '{$this->workshop->cols['title']}'.");
-			}
+			$this->session->set_flashdata('error', $this->registration->error);
 		}
 		
 		redirect('/workshops/view/'.$wid); // return to the view page for that workshop
 		return true;
+	}
+
+
+	public function figure_user($key) {
+		
+		// check key
+		if (!$key || ($key && !$this->user->set_user_with_key($key))) {
+			// no key or we couldn't set user with the key
+			$this->session->set_flashdata('error', "Can't log in the user.");
+			redirect('/workshops/'); 
+			return false; 
+		}
+		return $this->user; // we have set the correct user in that if statement
 		
 	}
 
-	// add or update a user's registration to the new status id
-	public function change_status($wid, $uid, $new_status_id) {
-		
-		// does this person have a registration?
-		$this->db->where('workshop_id', $wid);
-		$this->db->where('user_id', $uid);
-		$query = $this->db->get('registrations');
-		if ($query->num_rows() > 0) {
-			foreach ($query->result_array() as $row) {
-				if ($row['status_id'] == $new_status_id) {
-					return false; // already at that status
-				}
-			}
-			// update registration
-			$this->db->where('workshop_id', $wid);
-			$this->db->where('user_id', $uid);
-			$this->db->set('status_id', $new_status_id);
-			$this->db->update('registrations');
-		} else {
-			// add registration
-			$this->db->set('workshop_id', $wid);
-			$this->db->set('user_id', $uid);
-			$this->db->set('status_id', $new_status_id);
-			$this->db->set('registered', date("Y-m-d H:i:s"));
-			$this->db->set('last_modified', date("Y-m-d H:i:s"));
-			$this->db->insert('registrations');
+	public function figure_workshop($wid) {
+		if (!$wid) {
+			$this->session->set_flashdata('error', "No workshop set.");
+			redirect('/workshops/'); 
+			return false;
 		}
 		
-		//log it
-		$this->db->set('user_id', $uid);
-		$this->db->set('workshop_id', $wid);
-		$this->db->set('status_id', $new_status_id);
-		$this->db->set('happened', date("Y-m-d H:i:s"));
-		$this->db->insert('status_change_log');
+		if (isset($this->workshop->cols['id']) && $this->workshop->cols['id'] == $wid) {
+			return $this->workshop; // already set
+		}
 		
-		return true;
+		if (!$this->workshop->set_data($wid)) {
+			$this->session->set_flashdata('error', $this->workshop->error);
+			redirect('/workshops/'); 
+			return false; // workshop empty
+		}
+		
+		return $this->workshop;
+		
 	}
- 
+
 }

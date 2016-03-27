@@ -9,7 +9,11 @@
 
 	echo "<table class='table table-striped'>\n";
 	echo "<tr><th>Title</th><th>When</th><th>Where</th><th>Cost</th><th>Spots</th>";
-	if (!$admin) { echo "<th>Your Status</th>"; }
+	if ($admin) { 
+		echo "<th>Actions</th>";
+	} else {
+		echo "<th>Your Status</th>"; 
+	}
 	echo "</tr>\n";
 	foreach ($workshops as $row) {
 
@@ -42,7 +46,11 @@
 			<td>{$row['place']}<br><small>{$row['lwhere']}</small></td>
 			<td>{$row['cost']}</td>
 			<td>".number_format($row['open'], 0)." of ".number_format($row['capacity'], 0).",<br> ".number_format($row['waiting']+$row['invited'])." waiting</td>";
-			if (!$admin) { echo "<td>{$row['action']}</td>"; }
+			if ($admin) { 
+				echo "<td><a class='btn btn-primary' href='".base_url('/workshops/add/'.$row['id'])."'>Clone</a></td>"; 
+			} else {
+				echo "<td>{$row['action']}</td>"; 
+			}
 			echo "</tr>\n";
 			
 	}

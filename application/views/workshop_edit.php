@@ -89,8 +89,8 @@
 		);
 	echo $this->form_builder->close_form();
 	
-	echo  "</div> <!-- end of row -->\n";
-	echo "</div>\n";
+	echo  "</div> <!-- end of col -->\n";
+	echo "</div> <!-- end of row -->\n";
 
 	// change log
 	
@@ -98,15 +98,24 @@
 	echo "<h3>Change Log</h3>";
 	echo "</div></div>\n";
 	
-	foreach ($changes as $c) {
-		echo "<div class='row'>
-			<!--<div class='col-sm-3'>{$c['title']} ({$c['start']})</div>-->
+	if (isset($changes) && count($changes) > 0) {
+		foreach ($changes as $c) {
+			echo "<div class='row'>
+				<!--<div class='col-sm-3'>{$c['title']} ({$c['start']})</div>-->
 
-			<div class='col-sm-3'>{$c['email']}</div>
-			<div class='col-sm-1'>{$c['status_name']}</div>
-			<div class='col-sm-3'>".date('D M j Y g:ia', strtotime($c['happened']))."</div>
-			</div>\n";
+				<div class='col-sm-3'>{$c['email']}</div>
+				<div class='col-sm-1'>{$c['status_name']}</div>
+				<div class='col-sm-3'>".date('D M j Y g:ia', strtotime($c['happened']))."</div>
+				</div>\n";
+		}
+	} else {
+		echo "<div class='row'><div class='col-sm-7'>No changes!</div></div>\n";
 	}
+	
+	echo  "<div class='row'><div class='col-md-12'>\n";
+	echo "<br><p><a class='btn btn-danger' href='".base_url("/workshops/delete/{$wk['id']}")."'>Delete this workshop!</a></p>";
+	echo "</div></div>\n";
+	
 	
 	
 

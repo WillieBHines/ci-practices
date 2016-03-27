@@ -2,6 +2,7 @@
 
 	<p><div id="navbar_admin">
 		Admin functions: <a href='<?php echo site_url('workshops/admin')?>'>Main</a> |
+		<a href='<?php echo site_url('workshops/add')?>'>Add Workshop</a>	|
 		<a href='<?php echo site_url('workshops/changes')?>'>Change Log</a>		
 	</div></p>
 	<p><div id="crud_navbar">

@@ -25,6 +25,22 @@ class Registration extends MY_Model {
 			return $this->cols;
 		}
 
+
+		public function set_data_by_workshop_user($wid, $uid) {
+			$this->db->where('registrations.workshop_id', $wid);
+			$this->db->where('registrations.user_id', $uid);
+			$this->db->join('statuses', 'registrations.status_id = statuses.id');
+			$this->db->join('users', 'registrations.user_id = users.id');
+			$this->db->join('workshops', 'registrations.workshop_id = workshops.id');
+			$this->db->select('registrations.*, workshops.title, users.email, statuses.status_name');
+			$query = $this->db->get('registrations');
+			foreach ($query->result_array() as $row) {
+				$this->cols = $row;
+			}
+			return $this->cols;
+		}
+
+
 		public function count_enrollments($wid, $status_id = 1) {
 			$this->db->where('workshop_id', $wid);
 			$this->db->where('status_id', $status_id);
@@ -49,6 +65,78 @@ class Registration extends MY_Model {
 			}
 			return $i;
 		}
+		
+		
+		// add or update a user's registration to the new status id
+		public function change_status($wid, $uid, $new_status_id, $send_email = true) {
+			
+			$this->load->model('status');
+			$status_name = $this->status->statuses[$new_status_id];
+		
+			if (!$wid) {
+				$this->error = 'No workshop set';
+				return false;
+			}
+
+			if (!$uid) {
+				$this->error = 'No user set';
+				return false;
+			}
+			
+			// does this person have a registration?
+			$this->db->where('workshop_id', $wid);
+			$this->db->where('user_id', $uid);
+			$query = $this->db->get('registrations');
+			if ($query->num_rows() > 0) {
+				foreach ($query->result_array() as $row) {
+					if ($row['status_id'] == $new_status_id) {
+						$this->error = "You are already '{$status_name}' for this workshop.";
+						return false; // already at that status
+					}
+				}
+				// update registration
+				$this->db->where('workshop_id', $wid);
+				$this->db->where('user_id', $uid);
+				$this->db->set('status_id', $new_status_id);
+				$this->db->update('registrations');
+			} else {
+				// add registration
+				$this->db->set('workshop_id', $wid);
+				$this->db->set('user_id', $uid);
+				$this->db->set('status_id', $new_status_id);
+				$this->db->set('registered', date("Y-m-d H:i:s"));
+				$this->db->set('last_modified', date("Y-m-d H:i:s"));
+				$this->db->insert('registrations');
+			}
+		
+			$this->update_status_log($wid, $uid, $new_status_id);
+			
+			if ($new_status_id == $this->status->status_names['waiting']) {
+				$rank = $this->figure_rank($wid, $uid);
+				$this->message = "You have been set to '{$status_name}' (spot: {$rank}) for this workshop.";
+			} else {
+				$this->message = "You have been set to '{$status_name}' for this workshop.";
+			}
+			
+			// check and send email if needed
+			if ($send_email) {
+				$this->load->library('messages');
+				$this->messages->send_confirmation_email($this->workshop, $this->user, $new_status_id);
+			}
+			// check waiting list
+			
+			return true;
+		}
+
+		public function update_status_log($wid, $uid, $status_id) {
+			$this->db->set('user_id', $uid);
+			$this->db->set('workshop_id', $wid);
+			$this->db->set('status_id', $status_id);
+			$this->db->set('happened', date("Y-m-d H:i:s"));
+			$this->db->insert('status_change_log');
+			return true;
+		}
+		
 		
 		public function get_changes($wid = null, $cleave = true) {
 			$this->db->select('users.email, workshops.title, workshops.start, statuses.status_name, status_change_log.happened');

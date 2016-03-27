@@ -31,7 +31,7 @@ class User extends MY_Model {
 			$query = $this->db->where('ukey', $key);
 			$query = $this->db->get('users');		
 			if ($query->num_rows() == 0) {
-				$this->error = "I couldn't find a user with that key.";
+				$this->error = "You tried to log in with a key, but I can't find a user with that key.";
 				return false;
 			} else {
 				foreach ($query->result_array() as $row) {

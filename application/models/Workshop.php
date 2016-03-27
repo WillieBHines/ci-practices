@@ -100,12 +100,13 @@ class Workshop extends MY_Model {
 			}
 			
 			$action = '';
+			$key = $this->user->cols['ukey'];
 			
-			$enroll_button = "<a class='btn btn-primary' href='".base_url('/registrations/enroll/'.$row['id'].'/'.$user->cols['id'])."'>";
+			$enroll_button = "<a class='btn btn-primary' href='".base_url("/registrations/enroll/{$row['id']}/$key")."'>";
 			if ($row['type'] == 'soldout') {
-				$enroll_button .= 'Join the Wait List';
+				$enroll_button .= 'Join the Wait List?';
 			} else {
-				$enroll_button .= 'Enroll';
+				$enroll_button .= 'Enroll?';
 			}
 			$enroll_button .= "</a>";
 				
@@ -116,17 +117,17 @@ class Workshop extends MY_Model {
 					$in_it = true;
 					if ($wk['status_name'] == 'enrolled') {
 
-						$action = "Enrolled. Want to <a class='btn btn-danger' href='".base_url('/registrations/drop/'.$wk['registration_id'])."'>drop?</a>";
+						$action = "Enrolled. Want to <a class='btn btn-danger' href='".base_url("/registrations/drop/{$wk['id']}/{$key}")."'>drop?</a>";
 					
 					} elseif  ($wk['status_name'] == 'waiting') {
 					
-						$action = "Wait list (spot {$wk['rank']}). Want to <a class='btn btn-danger' href='".base_url('/registrations/drop/'.$wk['registration_id'])."'>drop?</a>";
+						$action = "Wait list (spot {$wk['rank']}). Want to <a class='btn btn-danger' href='".base_url("/registrations/drop/{$wk['id']}/{$key}")."'>drop?</a>";
 					
 					} elseif ($wk['status_name'] == 'invited') {
-						$action = "You have an invitaion to join. <a class='btn btn-primary' href='".base_url('/registrations/accept/'.$wk['registration_id'])."'>Accept</a> or <a class='btn btn-primary' href='".base_url('/registrations/decline/'.$wk['registration_id'])."'>decline?</a> ";
+						$action = "You have an invitaion to join. <a class='btn btn-primary' href='".base_url("/registrations/accept/{$wk['id']}/{$key}")."'>Accept</a> or <a class='btn btn-primary' href='".base_url(base_url("/registrations/decline/{$wk['id']}/{$key}"))."'>decline?</a> ";
 
 					} elseif ($wk['status_name'] == 'dropped') {
-						$action = "You've dropped. Want to $enroll_button ?";
+						$action = "You've dropped. Want to $enroll_button";
 					}
 				}
 			}
