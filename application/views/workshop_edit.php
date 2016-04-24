@@ -96,21 +96,35 @@
 	
 	echo  "<div class='row'><div class='col-md-12'>\n";
 	echo "<h3>Change Log</h3>";
-	echo "</div></div>\n";
+	echo "<table class='table'>";
 	
 	if (isset($changes) && count($changes) > 0) {
 		foreach ($changes as $c) {
-			echo "<div class='row'>
-				<!--<div class='col-sm-3'>{$c['title']} ({$c['start']})</div>-->
-
-				<div class='col-sm-3'>{$c['email']}</div>
-				<div class='col-sm-1'>{$c['status_name']}</div>
-				<div class='col-sm-3'>".date('D M j Y g:ia', strtotime($c['happened']))."</div>
-				</div>\n";
+			
+			$last_enrolled = '';
+			$rowclass = '';
+			if ($c['status_name'] == 'dropped' && $c['last_enrolled']) {
+				$last_enrolled = ' /<br>'.date('D M j Y g:ia', strtotime($c['last_enrolled']))." ({$c['hours_before']})";
+				// turn row red
+				if ($c['hours_before'] < $late_hours) {
+					$rowclass = 'danger';
+				}
+				
+			}
+			
+			
+			echo "<tr class='$rowclass'>
+				<td>{$c['email']}</td>
+				<td>{$c['status_name']}</td>
+				<td>".date('D M j Y g:ia', strtotime($c['happened']))."{$last_enrolled}</td>
+				</tr>\n";
 		}
 	} else {
-		echo "<div class='row'><div class='col-sm-7'>No changes!</div></div>\n";
+		echo "<tr><td>No changes!</td></tr>\n";
 	}
+	echo "</table>\n";
+	echo "</div></div>\n";
+
 	
 	echo  "<div class='row'><div class='col-md-12'>\n";
 	echo "<br><p><a class='btn btn-danger' href='".base_url("/workshops/delete/{$wk['id']}")."'>Delete this workshop!</a></p>";

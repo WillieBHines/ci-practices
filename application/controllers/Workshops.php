@@ -121,7 +121,7 @@ class Workshops extends Public_Controller {
 			$this->data['wk'] = $this->workshop->set_data($id);
 			$this->data['message'] = "Workshop updated!";
 	    }
-		
+		$this->data['late_hours'] = $this->config->item('late_hours');
 		$this->load->view('workshop_edit', $this->data);
 	}
 	
@@ -158,6 +158,7 @@ class Workshops extends Public_Controller {
 		$this->force_admin();
 		$this->load->model('registration');
 		$this->data['changes'] = $this->registration->get_changes();
+		$this->data['late_hours'] = $this->config->item('late_hours');
 		$this->load->view('workshop_changes', $this->data);	
 	}
 

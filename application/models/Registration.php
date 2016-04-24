@@ -139,7 +139,8 @@ class Registration extends MY_Model {
 		
 		
 		public function get_changes($wid = null, $cleave = true) {
-			$this->db->select('users.email, workshops.title, workshops.start, statuses.status_name, status_change_log.happened');
+						
+			$this->db->select('users.email, workshops.title, workshops.start, statuses.status_name, status_change_log.happened, status_change_log.workshop_id, status_change_log.user_id');
 			if ($wid) {
 				$this->db->where('workshop_id', $wid);
 			}
@@ -155,11 +156,36 @@ class Registration extends MY_Model {
 						continue; // skip past ones if cleave is true
 					}
 				}
+				
+				if ($row['status_name'] == 'dropped') {
+					// when was last enrollment
+					$row['last_enrolled'] = $this->get_last_enrolled($row['workshop_id'], $row['user_id'], $row['happened']);
+				
+					// how much in advance was this change
+					$row['hours_before'] = round((strtotime($row['start']) - strtotime($row['happened'])) / 3600);
+				}
+				
 				$this->changes[] = $row;
 			}
 			return $this->changes;
 		}
 		
-		
+		private function get_last_enrolled($wid = 0, $uid = 0, $before = null) {
+			
+			$this->db->select('status_change_log.*');
+			$this->db->where('workshop_id', $wid);
+			$this->db->where('user_id', $uid);
+			$this->db->where('status_name', 'enrolled');
+			$this->db->join('statuses', 'statuses.id = status_change_log.status_id');
+			if ($before) {
+				$this->db->where('happened < ', date( 'Y-m-d H:i:s', strtotime($before) ));
+			}
+			$this->db->order_by('happened desc');
+			$query = $this->db->get('status_change_log');
+			foreach ($query->result_array() as $row) {
+				return $row['happened'];
+			}
+			return false;
+		}
 }
 	

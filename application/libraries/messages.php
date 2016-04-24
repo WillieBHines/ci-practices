@@ -7,7 +7,7 @@ class messages {
 	public $error;
 	private $from = "will@willhines.net"; // webmaster email 
 	private $from_name = "Will Hines";
-	private $late_hours = 18;
+	private $late_hours;
 	protected $CI;
 
 	function __construct() {
@@ -17,6 +17,7 @@ class messages {
 		$this->CI->load->model('status');
 		$this->CI->load->model('registration');
 		
+		$this->late_hours = $this->CI->config->item('late_hours');
 		
 	}
 
