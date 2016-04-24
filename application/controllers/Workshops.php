@@ -20,10 +20,12 @@ class Workshops extends Public_Controller {
 		// log in box / greetings
 		$this->data['your workshops'] = array();
 		if ($this->user->logged_in()) {
-			$this->load->view('logged_in', $this->data);	
+			$this->load->view('front_logged_in', $this->data);	
 		} else {
-			$this->load->view('login', $this->data);
+			$this->load->view('front_login', $this->data);
 		}
+		
+		$this->load->view('front_mailchimp');
 		
 		// list of workshops / mailchimp form
 		$this->db->select('workshops.*, locations.place, locations.lwhere');
@@ -41,9 +43,9 @@ class Workshops extends Public_Controller {
 						
 		$this->load->view('workshop_list', $this->data);
 		
-		// log in box / greetings
+		// past workshops 
 		if ($this->user->logged_in()) {
-			$this->load->view('user_workshops', $this->data);	
+			$this->load->view('front_past_workshops', $this->data);	
 		}		
     }
 	

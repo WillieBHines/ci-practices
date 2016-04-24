@@ -59,7 +59,7 @@ echo "<div class=\"container\">\n";
 
 echo "<div class=\"jumbotron page-header\">";
 echo "<h1><a href=\"".site_url("/")."\">{$heading}</a></h1>\n";	
-echo "<p>Greetings. This is a list of improv practices being taught or at least organized by Will Hines.";
+echo "<p>Greetings. This is where you can sign up for improv workshops from Will Hines.";
 echo "</p>";	
 echo "</div>\n";
 

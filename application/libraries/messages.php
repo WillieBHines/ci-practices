@@ -58,9 +58,9 @@ Thanks!
 		$this->CI->email->subject($subject);
 		$this->CI->email->message($body);
 		
-		//$this->CI->email->send();
-		$this->CI->email->send(FALSE);
-		echo $this->CI->email->print_debugger();
+		$this->CI->email->send();
+		//$this->CI->email->send(FALSE);
+		//echo $this->CI->email->print_debugger();
 	}
 	
 	
@@ -87,7 +87,7 @@ Thanks!
 		
 		$reg->set_data_by_workshop_user($wid, $uid);
 		$drop = base_url("/registrations/drop/{$wid}/{$key}"); 
-		$front = base_url("/workshops/{$key}"); 
+		$front = base_url("/workshops/index/{$key}"); 
 		$accept = base_url("/registrations/accept/{$wid}/{$key}"); 
 		$decline = base_url("/registrations/decline/{$wid}/{$key}"); 
 		$enroll = base_url("/registrations/enroll/{$wid}/{$key}"); 
@@ -148,18 +148,17 @@ Thanks!
 
 		$body = "You are: {$user->cols['email']}
 
-	$point $late
-	$notifications
+$point $late
+$notifications
 
-	Title: {$wk->cols['title']}
-	Description: {$wk->cols['notes']}
-	When: {$wk->cols['when']}
-	Where: {$wk->cols['place']} {$wk->cols['lwhere']}
-	Cost: {$wk->cols['cost']}
+Description: {$wk->cols['notes']}
+When: {$wk->cols['when']}
+Where: {$wk->cols['place']} {$wk->cols['lwhere']}
+Cost: {$wk->cols['cost']}
 
-	$call
+$call
 
-	".$this->email_footer($send_faq);	
+".$this->email_footer($send_faq);	
 	
 	
 		return mail($user->cols['email'], $sub, $body, "From: ".$this->from);
@@ -214,23 +213,23 @@ HQ: 1948 Hillhurst Ave. Los Angeles, CA 90027
 	function get_faq() {
 	
 	return "<h2>Questions</h2>
-	<dl>
-	<dt>Can I drop out?</dt>
-	<dd>Yes, use the link in your confirmation email to go to the web site, where you can drop out.</dd>
+<dl>
+<dt>Can I drop out?</dt>
+<dd>Yes. Go to the web site or use the link in this email.</dd>
 
-	<dt>If there is a cost, how should I pay?</dt>
-	<dd>In cash, at the practice. Or Venmo it to Will Hines (whines@gmail.com)
-	Venmo link: <a href='http://venmo.com/willhines?txn=pay&share=friends&note=improv%20workshop'>http://venmo.com/willhines?txn=pay&share=friends&note=improv%20workshop</a></dd>
+<dt>If there is a cost, how should I pay?</dt>
+<dd>In cash, at the practice. Or Venmo it to Will Hines (whines@gmail.com)
+Venmo link: <a href='http://venmo.com/willhines?txn=pay&share=friends&note=improv%20workshop'>http://venmo.com/willhines?txn=pay&share=friends&note=improv%20workshop</a></dd>
 
-	<dt>What if I'm on a waiting list?</dt>
-	<dd>You'll get an email the moment a spot opens up, with a link to ACCEPT or DECLINE.</dd>
+<dt>What if I'm on a waiting list?</dt>
+<dd>You'll get an email the moment a spot opens up, with a link to ACCEPT or DECLINE.</dd>
 
-	<dt>What's the late policy? Or the policy on leaving early?</dt>
-	<dd>Arriving late or leaving early is fine. If you're late I might ask you to wait to join in until I say so.</dd>
+<dt>What's the late policy? Or the policy on leaving early?</dt>
+<dd>Arriving late is fine. </dd>
 
-	<dt>What levels?</dt>
-	<dd>Anyone can sign up. The description may recommend a level but I won't enforce it.</dd>
-	</dl>";
+<dt>What levels?</dt>
+<dd>Generally anyone who's taken any improv level can sign up.</dd>
+</dl>";
 	}
 	
 	
