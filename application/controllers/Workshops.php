@@ -106,23 +106,59 @@ class Workshops extends Public_Controller {
 	
 	public function edit($id) {
 		$this->force_admin();
-		$this->load->model(array('status', 'location'));
+		$this->load->model(array('location', 'registration'));
 		$this->data['statuses'] = $this->status->statuses;
 		
 		$this->data['wk'] = $this->workshop->set_data($id);
 		$this->data['regs'] = $this->workshop->set_registrations();
 		$this->data['changes'] = $this->workshop->get_changes();
+		
+		
+		// was the edit workshop form submitted?
+		if ($this->input->post('submit1')) {
+			$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+			if ($this->form_validation->run() == TRUE) {
+				$email = $this->input->post('email');
+				$status_id = $this->input->post('status_id');
 			
-        $this->form_validation->set_rules('title', 'Title', 'required');
-        $this->form_validation->set_rules('capacity', 'Capacity', 'numeric');
-        $this->form_validation->set_rules('cost', 'Cost', 'numeric');		
+				// remember current user (admin)
+				// then set new user and enroll
+				$admin_key = $this->user->cols['ukey'];
+				$this->user->set_user_with_email($email);
+			
+				$this->registration->change_status(
+					$this->workshop->cols['id'], 
+					$this->user->cols['id'],
+					$status_id,
+					$this->input->post['send_email']);
 				
-	    if ($this->form_validation->run() == TRUE) {
-			$this->workshop->update_cols_from_form();
-			$this->workshop->update_db_from_cols();
-			$this->data['wk'] = $this->workshop->set_data($id);
-			$this->data['message'] = "Workshop updated!";
-	    }
+					$this->data['message'] = $this->registration->message;
+			
+					// refresh data
+					$this->data['wk'] = $this->workshop->set_data($id);
+					$this->data['regs'] = $this->workshop->set_registrations();
+					$this->data['changes'] = $this->workshop->get_changes();
+			
+				// put admin back as the user
+				$this->user->set_user_with_key($admin_key);				
+			}
+		
+		}
+
+		// was the edit workshop form submitted?
+		if ($this->input->post('submit2')) {
+	        $this->form_validation->set_rules('title', 'Title', 'required');
+	        $this->form_validation->set_rules('capacity', 'Capacity', 'numeric');
+	        $this->form_validation->set_rules('cost', 'Cost', 'numeric');		
+				
+		    if ($this->form_validation->run() == TRUE) {
+				$this->workshop->update_cols_from_form();
+				$this->workshop->update_db_from_cols();
+				$this->data['wk'] = $this->workshop->set_data($id); // refresh data
+				$this->data['message'] = "Workshop updated!";
+		    }
+		}
+			
 		$this->data['late_hours'] = $this->config->item('late_hours');
 		$this->load->view('workshop_edit', $this->data);
 	}

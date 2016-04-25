@@ -102,7 +102,7 @@ Thanks!
 	
 		$send_faq = false;
 		switch ($status_id) {
-			case $status->status_names['enrolled']:
+			case $status->enrolled:
 				$sub = "ENROLLED: {$wk->cols['showtitle']}";
 				$point = "You are ENROLLED in {$wk->cols['showtitle']}.";
 				$call = "To DROP, click here:\n{$drop}";
@@ -111,17 +111,17 @@ Thanks!
 				}
 				$send_faq = true;
 				break;
-			case $status->status_names['waiting']:
+			case $status->waiting:
 				$sub = "WAIT LIST: {$wk->cols['showtitle']}";
 				$point = "You are wait list spot {$reg->cols['rank']} for {$wk->cols['showtitle']}:";
 				$call = "To DROP, click here:\n{$drop}";
 				break;
-			case $status->status_names['invited']:
+			case $status->invited:
 				$sub = "INVITED: {$wk->cols['showtitle']}";
 				$point = "A spot opened in {$wk->cols['showtitle']}:";
 				$call = "To ACCEPT, click here:\n{$accept}\n\nTo DECLINE, click here:\n{$decline}";
 				break;
-			case $status->status_names['dropped']:
+			case $status->dropped:
 				$sub = "DROPPED: {$wk->cols['showtitle']}";
 				$point = "You have dropped out of {$wk->cols['showtitle']}";
 				if ($reg->cols['while_soldout'] == 1) {

@@ -111,11 +111,11 @@ class Registration extends MY_Model {
 		
 			$this->update_status_log($wid, $uid, $new_status_id);
 			
-			if ($new_status_id == $this->status->status_names['waiting']) {
+			if ($new_status_id == $this->status->waiting) {
 				$rank = $this->figure_rank($wid, $uid);
-				$this->message = "You have been set to '{$status_name}' (spot: {$rank}) for this workshop.";
+				$this->message = "'{$this->user->cols['email']}' has been set to '{$status_name}' (spot: {$rank}) for this workshop.";
 			} else {
-				$this->message = "You have been set to '{$status_name}' for this workshop.";
+				$this->message = "'{$this->user->cols['email']}' has been set to '{$status_name}' for this workshop.";
 			}
 			
 			// check and send email if needed
@@ -123,8 +123,7 @@ class Registration extends MY_Model {
 				$this->load->library('messages');
 				$this->messages->send_confirmation_email($this->workshop, $this->user, $new_status_id);
 			}
-			// check waiting list
-			
+						
 			return true;
 		}
 
@@ -139,8 +138,10 @@ class Registration extends MY_Model {
 		
 		
 		public function get_changes($wid = null, $cleave = true) {
+			
+			$this->changes = array(); // clear it out first
 						
-			$this->db->select('users.email, workshops.title, workshops.start, statuses.status_name, status_change_log.happened, status_change_log.workshop_id, status_change_log.user_id');
+			$this->db->select('users.email, workshops.title, workshops.start, statuses.status_name, status_change_log.happened, status_change_log.workshop_id, status_change_log.user_id, status_change_log.status_id');
 			if ($wid) {
 				$this->db->where('workshop_id', $wid);
 			}
@@ -157,7 +158,7 @@ class Registration extends MY_Model {
 					}
 				}
 				
-				if ($row['status_name'] == 'dropped') {
+				if ($row['status_id'] == $this->status->dropped) {
 					// when was last enrollment
 					$row['last_enrolled'] = $this->get_last_enrolled($row['workshop_id'], $row['user_id'], $row['happened']);
 				
@@ -175,8 +176,7 @@ class Registration extends MY_Model {
 			$this->db->select('status_change_log.*');
 			$this->db->where('workshop_id', $wid);
 			$this->db->where('user_id', $uid);
-			$this->db->where('status_name', 'enrolled');
-			$this->db->join('statuses', 'statuses.id = status_change_log.status_id');
+			$this->db->where('status_id', $this->status->enrolled);
 			if ($before) {
 				$this->db->where('happened < ', date( 'Y-m-d H:i:s', strtotime($before) ));
 			}

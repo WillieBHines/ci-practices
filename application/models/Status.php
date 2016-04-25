@@ -4,11 +4,21 @@ class Status extends CI_Model {
 
 		public $statuses;		
 		public $status_names;
+		public $enrolled;
+		public $dropped;
+		public $invited;
+		public $waiting;
 
         public function __construct()
         {
                 parent::__construct();
 				$this->set_statuses();	
+				
+				$this->enrolled = $this->status_names['enrolled'];
+				$this->dropped = $this->status_names['dropped'];
+				$this->invited = $this->status_names['invited'];
+				$this->waiting = $this->status_names['waiting'];
+				
 				
         }
 		

@@ -44,11 +44,11 @@ class Registrations extends Public_Controller {
 	public function enroll($wid, $key) {
 		
 		$this->figure_workshop($wid);
-		$status_id = $this->status->status_names['enrolled'];
+		$status_id = $this->status->enrolled;
 		
 		// change enroll to waiting if workshop is sold out
 		if ($this->workshop->cols['type'] == 'soldout') {
-			$status_id = $this->status->status_names['waiting'];
+			$status_id = $this->status->waiting;
 		}
 		
 		$this->enact_status_change($wid, $key, $status_id);
@@ -56,11 +56,11 @@ class Registrations extends Public_Controller {
 	}
 	
 	public function accept($wid, $key) {
-		$status_id = $this->status->status_names['enrolled'];
+		$status_id = $this->status->enrolled;
 		$this->enact_status_change($wid, $key, $status_id);
 	}
 	public function decline($wid, $key) {
-		$status_id = $this->status->status_names['dropped'];
+		$status_id = $this->status->dropped;
 		$this->enact_status_change($wid, $key, $status_id);
 	}
 	public function drop($wid, $key) {
@@ -70,10 +70,10 @@ class Registrations extends Public_Controller {
 		
 	}
 	public function condrop($wid, $key) {
-		$status_id = $this->status->status_names['dropped'];
+		$status_id = $this->status->dropped;
 		$this->enact_status_change($wid, $key, $status_id);
 	}
-	
+		
 
 	private function enact_status_change($wid, $key, $status_id) {
 		
@@ -90,11 +90,16 @@ class Registrations extends Public_Controller {
 			$this->session->set_flashdata('error', $this->registration->error);
 		}
 		
+		
+		$this->workshop->check_waiting();
+		
+		
 		redirect('/workshops/view/'.$wid); // return to the view page for that workshop
 		return true;
 	}
 
 
+	// make sure the user for this key is the one that's set
 	public function figure_user($key) {
 		
 		// check key
@@ -108,6 +113,7 @@ class Registrations extends Public_Controller {
 		
 	}
 
+	// make sure this workshop id is the one that's set
 	public function figure_workshop($wid) {
 		if (!$wid) {
 			$this->session->set_flashdata('error', "No workshop set.");

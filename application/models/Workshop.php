@@ -38,6 +38,7 @@ class Workshop extends MY_Model {
 			$this->db->where('workshop_id', $this->cols['id']);
 			$this->db->order_by('status_id asc, last_modified');
 			$query = $this->db->get('registrations');
+			$this->registrations = array(); // start at nothing
 			foreach ($query->result_array() as $row) {
 				$this->registrations[] = $row;
 			}
@@ -140,7 +141,49 @@ class Workshop extends MY_Model {
 			
 		}
 		
-		function friendly_time($time_string) {
+		// invite people on waiting list if needed
+		// returns the number of invites sent or false
+		public function check_waiting() {
+			
+			$this->load->model('registration');
+
+			if (!$this->cols['id']) {
+				$this->error = 'No workshop set.';
+				return false;
+			}
+			
+			if ($this->cols['type'] == 'past') {
+				$this->error = 'Workshop is in the past';
+				return false;
+			}
+			
+			
+			$invites_sent = 0;
+			while (($this->cols['enrolled']+$this->cols['invited']) < $this->cols['capacity'] && $this->cols['waiting'] > 0) {
+				
+				$this->db->select('registrations.*');
+				$this->db->where('status_id', $this->status->waiting);
+				$this->db->where('workshop_id', $this->cols['id']);
+				$this->db->order_by('last_modified');
+				$query = $this->db->get('registrations');
+				
+				
+				foreach ($query->result_array() as $row) {
+					if (!$this->registration->change_status($this->cols['id'], $row['user_id'], $this->status->invited, true)) {
+						$this->error = $this->registration->error;
+						return false;
+					}
+				}
+				$this->set_data($this->cols['id']); // update data
+				
+				$invites_sent++;
+				
+			}
+			return $invite_sent;
+		}
+		
+		
+		private function friendly_time($time_string) {
 			$ts = strtotime($time_string);
 			$minutes = date('i', $ts);
 			if ($minutes == 0) {
@@ -150,7 +193,7 @@ class Workshop extends MY_Model {
 			}
 		}
 
-		function friendly_date($time_string) {
+		private function friendly_date($time_string) {
 			$ts = strtotime($time_string);	
 			if (date('Y', $ts) != date('Y')) {  
 				return date('D M j, Y', $ts);
